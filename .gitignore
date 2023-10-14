@@ -1,0 +1,8 @@
+!**/*.c
+*.dSYM
+*.out
+main
+unicode_benchmark
+cmake-build-debug
+.idea
+.
