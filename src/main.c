@@ -6,7 +6,7 @@
 
 int
 main() {
-    char *mix = "Привет, ອັກສອນລາວ World";
+    char *mix = "Привет, ອັກສອນລາວ 🇷🇺World";
     UnicodeChar *string;
     UnicodeChar uchar;
 
