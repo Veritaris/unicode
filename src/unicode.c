@@ -136,7 +136,7 @@ UnicodeChar
 unicode_chr(int char_ord) {
     UnicodeChar uchr = {0};
 
-    if (char_ord >= 0 & char_ord <= MAX_UNICODE_CHAR[0]) {
+    if (char_ord >= 0 && char_ord <= MAX_UNICODE_CHAR[0]) {
         uchr.octet[0] = char_ord;
 
     } else if (char_ord > MAX_UNICODE_CHAR[0] && char_ord < MAX_UNICODE_CHAR[1]) {
