@@ -64,6 +64,7 @@ void
 read_benchmark() {
     UnicodeChar *string;
     read_unicode_string(mix, &string);
+    free(string);
 }
 
 void

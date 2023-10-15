@@ -110,8 +110,11 @@ read_unicode_char_with_offset_safe(char *pStr, int offset);
  * char *mix = "Привет, 😀ອັກສອນລາວ World";
  * UnicodeChar *string;
  * read_unicode_string(mix, &string);
+ * free(string);
  *
  * @attention Invalid Unicode byte will be replaced with null-terminator
+ * @attention Memory allocated for pUstr is not freed automatically! You have to utilize it by yourself when you
+ * don't need that string anymore (see example)
  */
 // TODO: edit null-terminator replacing with byte representation replace
 void

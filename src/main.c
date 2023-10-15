@@ -12,6 +12,7 @@ main() {
 
     read_unicode_string(mix, &string);
     print_unicode_string(string);
+    free(string);
     putchar('\n');
 
     uchar = read_unicode_char_with_offset_safe(mix, 1);
