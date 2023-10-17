@@ -60,13 +60,13 @@ read_unicode_char_with_offset_safe(char *pStr, int offset) {
 
 char
 get_octets_num(const char *c) {
-    if (((*c & ONE_OCTET_MASK)) == ONE_OCTET) {
+    if (!((*c & ONE_OCTET_MASK) ^ ONE_OCTET)) {
         return 1;
-    } else if (((*c & TWO_OCTET_MASK)) == TWO_OCTET) {
+    } else if (!((*c & TWO_OCTET_MASK) ^ TWO_OCTET)) {
         return 2;
-    } else if (((*c & THREE_OCTET_MASK)) == THREE_OCTET) {
+    } else if (!((*c & THREE_OCTET_MASK) ^ THREE_OCTET)) {
         return 3;
-    } else if (((*c & FOUR_OCTET_MASK)) == FOUR_OCTET) {
+    } else if (!((*c & FOUR_OCTET_MASK) ^ FOUR_OCTET)) {
         return 4;
     } else {
         return 0;
