@@ -44,6 +44,25 @@ const char THREE_OCTET = 0b11100000;
 const char FOUR_OCTET_MASK = 0b11111000;
 const char FOUR_OCTET = 0b11110000;
 
+char HEXES[16] = {
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+};
+
 /**
  * Unicode char consist of max 4 octets, 1 byte each.
  * Each octet consist of 8 bits, first 1, 3, 4, and 5 bits encodes how octets are necessary

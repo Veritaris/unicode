@@ -23,6 +23,15 @@ void
 read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr) {
     char octets = get_octets_num(pStr);
     (*pUstr)->size = octets;
+    if (!octets) {
+//        we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
+        (*pUstr)->size = 4;
+        *(*pUstr)->octet = 92;          // '\'
+        *((*pUstr)->octet + 1) = 120;   // 'x'
+        *((*pUstr)->octet + 2) = HEXES[(15 - (~(*pStr) >> 4)) % 16];
+        *((*pUstr)->octet + 3) = HEXES[-((~(*pStr & 15)) + 1) % 16];
+        return;
+    }
     for (size_t i = 0; i < octets; i++) {
         *((*pUstr)->octet + i) = *(pStr++);
     }
@@ -75,7 +84,7 @@ get_octets_num(const char *c) {
 
 void
 print_unicode_string(UnicodeChar *pUstr) {
-    while ((*pUstr).octet[0] != '\0') {
+    while ((*pUstr).size != 0) {
         print_unicode_char(*pUstr);
         ++pUstr;
     }
@@ -83,16 +92,14 @@ print_unicode_string(UnicodeChar *pUstr) {
 
 void
 print_unicode_char(UnicodeChar uchar) {
-    for (size_t i = 0, c; (c = uchar.octet[i]) != '\0' && i < 4; i++) {
-        putchar((char) c);
+    for (size_t i = 0; i < uchar.size; i++) {
+        putchar(uchar.octet[i]);
     }
 }
 
 int
 unicode_significant_bytes(const UnicodeChar *uchar) {
-    size_t i = 0;
-    while (uchar->octet[i] != '\0' && i < 4) i++;
-    return (int) i;
+    return uchar->size;
 }
 
 int

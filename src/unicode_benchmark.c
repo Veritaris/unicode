@@ -53,7 +53,7 @@
 #define HARDWARE_INFO_CALL NULL
 #endif
 
-const char *mix = "OoZe9ab8 \07Eef9hooj \nweiph7iD\r OoMai8ra FaHeaf7g ingie2Ah\t Wei4abah uL3pheog тхеед4Бе еЦхамаЪ0 Привет, 😀ອັກສອນລາວ World";
+const char *mix = "OoZe9ab8 \07Eef9hooj \nweiph7iD\r \xb0OoMai8ra FaHeaf7g ingie2Ah\t Wei4abah \xdf\xbf\xd3\x88uL3pheog тхеед4Бе еЦхамаЪ0 Привет, 😀ອັກສອນລາວ World";
 // TODO benchmark for comparing Unicode chars
 //const size_t cmp_str_one = u'<';
 //const size_t cmp_str_two = u'Ъ';
