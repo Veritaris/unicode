@@ -53,6 +53,7 @@ const char FOUR_OCTET = 0b11110000;
  */
 typedef struct UnicodeChar_s {
     unsigned char octet[4];
+    char size;
 } UnicodeChar;
 
 /**
@@ -71,6 +72,15 @@ const size_t uc_size_t = sizeof(UnicodeChar);
  */
 UnicodeChar
 read_unicode_char(const char *pStr);
+
+/**
+ * Reads one Unicode character from pStr into pUstr. Faster analog on read_unicode_char because result is not copied
+ * between invocation and assignment but writing directly to allocated memory
+ * @param pStr char array pointer to read Unicode character from
+ * @param pUstr pointer to UnicodeChar array pointer to read value
+ */
+void
+read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr);
 
 /**
  * Tried to read a Unicode character from pStr starting at offset position. It is not guaranteed that such Unicode

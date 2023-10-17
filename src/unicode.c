@@ -9,18 +9,38 @@
 
 UnicodeChar
 read_unicode_char(const char *pStr) {
-    UnicodeChar uchar = {0};
     char octets = get_octets_num(pStr);
-
-    if (!octets) {
-        return (UnicodeChar) {0};
-    }
+    UnicodeChar uchar = {0, 0, 0, 0, octets};
 
     for (size_t i = 0; i < octets; i++) {
         uchar.octet[i] = *(pStr++);
     }
 
     return uchar;
+}
+
+void
+read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr) {
+    char octets = get_octets_num(pStr);
+    (*pUstr)->size = octets;
+    for (size_t i = 0; i < octets; i++) {
+        *((*pUstr)->octet + i) = *(pStr++);
+    }
+}
+
+void
+read_unicode_string(const char *pStr, UnicodeChar **pUstr) {
+    *pUstr = (UnicodeChar *) calloc((strlen(pStr) + 1), uc_size_t);
+    UnicodeChar *pInit = *pUstr;
+
+    while ((*pStr) != '\0') {
+        read_unicode_char_fast(pStr, pUstr);
+        pStr += (*pUstr)->size;
+        ++(*pUstr);
+    }
+
+    (*(*pUstr)) = (UnicodeChar) {0};
+    *pUstr = pInit;
 }
 
 UnicodeChar
@@ -51,21 +71,6 @@ get_octets_num(const char *c) {
     } else {
         return 0;
     }
-}
-
-void
-read_unicode_string(const char *pStr, UnicodeChar **pUstr) {
-    *pUstr = (UnicodeChar *) malloc(uc_size_t * (strlen(pStr) + 1));
-    UnicodeChar *pInit = *pUstr;
-
-    while ((*pStr) != '\0') {
-        *(*pUstr) = read_unicode_char(pStr);
-        pStr += unicode_significant_bytes(*pUstr);
-        ++(*pUstr);
-    }
-
-    (*(*pUstr)) = (UnicodeChar) {0};
-    *pUstr = pInit;
 }
 
 void
