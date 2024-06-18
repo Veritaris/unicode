@@ -195,21 +195,25 @@ unicode_chr(int char_ord) {
 
     if (char_ord >= 0 && char_ord <= MAX_UNICODE_CHAR[0]) {
         uchr.octet[0] = char_ord;
+        uchr.size = 1;
 
     } else if (char_ord > MAX_UNICODE_CHAR[0] && char_ord < MAX_UNICODE_CHAR[1]) {
         uchr.octet[1] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[0] = START_TWO_OCTET + char_ord;
+        uchr.size = 2;
 
     } else if (char_ord > MAX_UNICODE_CHAR[1] && char_ord < MAX_UNICODE_CHAR[2]) {
         uchr.octet[2] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[1] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[0] = START_THREE_OCTET + char_ord;
+        uchr.size = 3;
 
     } else if (char_ord > MAX_UNICODE_CHAR[2] && char_ord < MAX_UNICODE_CHAR[3]) {
         uchr.octet[3] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[2] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[1] = CONTINUE_OCTET + char_ord;
         uchr.octet[0] = START_FOUR_OCTET;
+        uchr.size = 4;
     }
 
     return uchr;
