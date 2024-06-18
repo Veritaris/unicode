@@ -5,4 +5,8 @@ main
 unicode_benchmark
 cmake-build-debug
 .idea
-.
+cmake_install.cmake
+*.a
+Makefile
+build
+CMakeFiles

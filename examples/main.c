@@ -2,7 +2,10 @@
 // Created by Георгий Имешкенов on 12.10.2023.
 //
 
-#include "unicode.c"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "main.h"
 
 int
 main() {
@@ -10,7 +13,7 @@ main() {
     UnicodeChar *string;
     UnicodeChar uchar;
 
-    read_unicode_string(mix, &string);
+    read_into_unicode_array(mix, &string);
     print_unicode_string(string);
     free(string);
     putchar('\n');
@@ -39,5 +42,4 @@ main() {
     print_unicode_char(unicode_chr(129401));         // "🥹"
     putchar('\n');
     print_unicode_char(unicode_chr(3749));          // "ລ"
-
 }

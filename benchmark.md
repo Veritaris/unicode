@@ -24,7 +24,7 @@ __attribute__((unused)) unsigned char tmp = '\0';
 void
 read_benchmark() {
     UnicodeChar *string;
-    read_unicode_string(mix, &string);
+    read_into_unicode_array(mix, &string);
 }
 
 void
@@ -52,7 +52,7 @@ main(int argc, char **argv) {
     }
 
     UnicodeChar *string;
-    read_unicode_string(mix, &string);
+    read_into_unicode_array(mix, &string);
 
     for (int i = 0; i < target_runs; i++) {
         total_iterate_time = 0.0;

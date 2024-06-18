@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "unicode.h"
+
+#include "unicode_consts.h"
 
 UnicodeChar
 read_unicode_char(const char *pStr) {
     char octets = get_octets_num(pStr);
-    UnicodeChar uchar = {0, 0, 0, 0, octets};
+    UnicodeChar uchar = {{0, 0, 0, 0}, octets};
 
     for (size_t i = 0; i < octets; i++) {
         uchar.octet[i] = *(pStr++);
@@ -38,7 +39,7 @@ read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr) {
 }
 
 void
-read_unicode_string(const char *pStr, UnicodeChar **pUstr) {
+read_into_unicode_array(const char *pStr, UnicodeChar **pUstr) {
     *pUstr = (UnicodeChar *) calloc((strlen(pStr) + 1), uc_size_t);
     UnicodeChar *pInit = *pUstr;
 
@@ -50,6 +51,50 @@ read_unicode_string(const char *pStr, UnicodeChar **pUstr) {
 
     (*(*pUstr)) = (UnicodeChar) {0};
     *pUstr = pInit;
+}
+
+UnicodeString *
+read_into_unicode_string(const char *pStr) {
+    UnicodeString *str = (UnicodeString *) calloc(1, sizeof(struct UnicodeString_s));
+    str->len = 1;
+    read_into_unicode_array(pStr, &str->data);
+    while ((*(str->data)++).size != 0) str->len++;
+    *&str->data -= str->len;
+    return str;
+}
+
+CompressedUnicodeString *
+compress_into_bytes_array(UnicodeString *string) {
+    int bytes_count = 0;
+
+    unsigned char *compressed_string = calloc(string->len * 4, sizeof(unsigned char));
+    if (compressed_string == NULL) {
+        exit(3);
+    }
+
+    while ((*string->data).size != 0) {
+        memcpy(compressed_string + bytes_count, string->data->octet, string->data->size);
+        bytes_count += string->data->size;
+        string->data++;
+    }
+    string->data -= string->len - 1;
+
+    CompressedUnicodeString *compressed = calloc(1, sizeof(CompressedUnicodeString));
+    if (compressed == NULL) {
+        exit(-1);
+    }
+
+    compressed->data = malloc(bytes_count + 1);
+    if (compressed->data == NULL) {
+        exit(3);
+    }
+
+    compressed->len = bytes_count + 1;
+    memmove(compressed->data, compressed_string, bytes_count);
+    free(compressed_string);
+    *(compressed->data + bytes_count + 1) = '\0';
+
+    return compressed;
 }
 
 UnicodeChar

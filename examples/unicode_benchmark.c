@@ -2,7 +2,7 @@
 // Created by Георгий Имешкенов on 13.10.2023.
 //
 
-#include "unicode.c"
+#include "../src/unicode.c"
 #include <time.h>
 
 #if defined(_WIN32)

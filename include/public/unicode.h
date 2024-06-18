@@ -1,67 +1,10 @@
 //
 // Created by Георгий Имешкенов on 12.10.2023.
 //
-
-#include <stddef.h>
+#pragma once
 
 #ifndef FILTERPARSER_UNICODE_H
 #define FILTERPARSER_UNICODE_H
-
-#endif //FILTERPARSER_UNICODE_H
-
-// define max int code for (i+1) octet Unicode char representation
-const int MAX_UNICODE_CHAR[4] = {
-        0x7F,
-        0x7FF,
-        0xFFFF,
-        0x10FFFF
-};
-
-/**
- * Octets headers values
- */
-
-const char START_ONE_OCTET = 0b00000000;
-const char START_TWO_OCTET = 0b11000000;
-const char START_THREE_OCTET = 0b11100000;
-const char START_FOUR_OCTET = 0b11110000;
-const char CONTINUE_OCTET = 0b10000000;
-
-/**
- * Masks for Unicode characters start bytes
- * Mask itself leaves only significant for octet-defining bits
- * 0XXX XXXX
- */
-const char ONE_OCTET_MASK = 0b10000000;
-const char ONE_OCTET = 0b00000000;
-// 110X XXXX
-const char TWO_OCTET_MASK = 0b11100000;
-const char TWO_OCTET = 0b11000000;
-// 1110 XXXX
-const char THREE_OCTET_MASK = 0b11110000;
-const char THREE_OCTET = 0b11100000;
-// 1111 0XXXX
-const char FOUR_OCTET_MASK = 0b11111000;
-const char FOUR_OCTET = 0b11110000;
-
-char HEXES[16] = {
-        '0',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-};
 
 /**
  * Unicode char consist of max 4 octets, 1 byte each.
@@ -70,20 +13,35 @@ char HEXES[16] = {
  * Empty (not-used) octets have null-terminating nul value '\0', so real size of Unicode character is always 4 bytes
  * in RAM memory, but it can be compressed while wring to disk / network by stripping these chars
  */
+#pragma pack(push, 1)
 typedef struct UnicodeChar_s {
     unsigned char octet[4];
     char size;
 } UnicodeChar;
 
 /**
- * Size of UnicodeChar in bytes
+ * UnicodeString represents a string that is formally array of UnicodeChar structs
  */
-const size_t uc_size_t = sizeof(UnicodeChar);
+typedef struct UnicodeString_s {
+    UnicodeChar *data;
+    size_t len;
+} UnicodeString;
+
+typedef struct CompressedUnicodeString_s {
+    unsigned char *data;
+    size_t len;
+} CompressedUnicodeString;
+
+#pragma pack(pop)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Reads one Unicode character from pStr. Does not move pointer forward on read. To read next char you should
  * call `read_unicode_char_with_offset(char *pStr, int offset)`. Offset can be obtained from calling
- * `unicode_significant_bytes(UnicodeChar uchar)` with before extracted UnicodeChar.
+ * `unicode_significant_bytes(UnicodeChar uchar)` with before-extracted UnicodeChar.
  *
  * @param pStr char array pointer to read Unicode character from
  *
@@ -127,7 +85,7 @@ UnicodeChar
 read_unicode_char_with_offset_safe(char *pStr, int offset);
 
 /**
- * Main function to read `char *` string into Unicode-sequence. It reads input pStr in given pUstr. If invalid
+ * Main function to read `char *` string into array of UnicodeChar. It reads input pStr in given pUstr. If invalid
  * Unicode byte met it will be replaced with null-terminator, so be careful with it (known bug, will be fixed)
  * Resulting string has length of unicode chars + 1 - last is null-terminating octet
  *
@@ -138,7 +96,7 @@ read_unicode_char_with_offset_safe(char *pStr, int offset);
  * @example
  * char *mix = "Привет, 😀ອັກສອນລາວ World";
  * UnicodeChar *string;
- * read_unicode_string(mix, &string);
+ * read_into_unicode_array(mix, &string);
  * free(string);
  *
  * @attention Invalid Unicode byte will be replaced with null-terminator
@@ -147,7 +105,40 @@ read_unicode_char_with_offset_safe(char *pStr, int offset);
  */
 // TODO: edit null-terminator replacing with byte representation replace
 void
-read_unicode_string(const char *pStr, UnicodeChar **pUstr);
+read_into_unicode_array(const char *pStr, UnicodeChar **pUstr);
+
+/**
+ * Main function to read `char *` string into UnicodeString struct. It reads input pStr in given pUstr. If invalid
+ * Unicode byte met it will be replaced with null-terminator, so be careful with it (known bug, will be fixed)
+ * Resulting string has length of unicode chars + 1 - last is null-terminating octet
+ *
+ *
+ * @param pStr char array pointer to read Unicode sequence from
+ * @param pUstr ptr to UnicodeChar array pointer to read Unicode sequence into
+ *
+ * @example
+ * char *mix = "Привет, 😀ອັກສອນລາວ World";
+ * UnicodeString *string = read_into_unicode_array(mix);
+ * free(string);
+ *
+ * @return UnicodeString
+ *
+ * @attention In worst case (ascii-symbols)
+ * @attention Invalid Unicode byte will be replaced with null-terminator
+ * @attention Memory allocated for returned string is not freed automatically! You have to utilize it by yourself when
+ * you don't need that string anymore (see example)
+ */
+UnicodeString *
+read_into_unicode_string(const char *pStr);
+
+/**
+ * Read UnicodeString into array of `unsigned char`s. Resulting array is filled with only significant bytes of
+ * UnicodeString and null-terminated
+ * @param string
+ * @return
+ */
+CompressedUnicodeString *
+compress_into_bytes_array(UnicodeString *string);
 
 /**
  * Return octets that given `chr` is encoded with. If `chr` is not valid Unicode start byte 0 is returned that will
@@ -216,3 +207,9 @@ unicode_ord(UnicodeChar uchar);
  */
 UnicodeChar
 unicode_chr(int char_ord);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //FILTERPARSER_UNICODE_H
