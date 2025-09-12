@@ -9,8 +9,8 @@
 #include "unicode_consts.h"
 
 UnicodeChar
-read_unicode_char(const char *pStr) {
-    const char octets = get_octets_num(pStr);
+read_unicode_char(const uint8_t *pStr) {
+    const uint8_t octets = get_octets_num(pStr);
     UnicodeChar uchar = {{0, 0, 0, 0}, octets};
 
     for (size_t i = 0; i < octets; i++) {
@@ -21,26 +21,26 @@ read_unicode_char(const char *pStr) {
 }
 
 void
-read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr) {
-    const char octets = get_octets_num(pStr);
+read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
+    const uint8_t octets = get_octets_num(pStr);
     (*pUstr)->size = octets;
     if (!octets) {
         //        we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
         (*pUstr)->size = 4;
         *(*pUstr)->octet = 92; // '\'
         *((*pUstr)->octet + 1) = 120; // 'x'
-        *((*pUstr)->octet + 2) = HEXES[(15 - (~(*pStr) >> 4)) % 16];
-        *((*pUstr)->octet + 3) = HEXES[-((~(*pStr & 15)) + 1) % 16];
+        *((*pUstr)->octet + 2) = HEXES[(15 - (~*pStr >> 4)) % 16];
+        *((*pUstr)->octet + 3) = HEXES[-(~(*pStr & 15) + 1) % 16];
         return;
     }
     for (size_t i = 0; i < octets; i++) {
-        *((*pUstr)->octet + i) = *(pStr++);
+        *((*pUstr)->octet + i) = *pStr++;
     }
 }
 
 void
-read_into_unicode_array(const char *pStr, UnicodeChar **pUstr) {
-    *pUstr = (UnicodeChar *) calloc((strlen(pStr) + 1), uc_size_t);
+read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
+    *pUstr = (UnicodeChar *) calloc(strlen((char *) pStr) + 1, uc_size_t);
     UnicodeChar *pInit = *pUstr;
 
     while (*pStr != '\0') {
@@ -49,12 +49,12 @@ read_into_unicode_array(const char *pStr, UnicodeChar **pUstr) {
         ++*pUstr;
     }
 
-    (*(*pUstr)) = (UnicodeChar){0};
+    **pUstr = (UnicodeChar){0};
     *pUstr = pInit;
 }
 
 UnicodeString *
-read_into_unicode_string(const char *pStr) {
+read_into_unicode_string(const uint8_t *pStr) {
     UnicodeString *str = calloc(1, sizeof(struct UnicodeString_s));
     str->len = 1;
     read_into_unicode_array(pStr, &str->data);
@@ -65,9 +65,9 @@ read_into_unicode_string(const char *pStr) {
 
 CompressedUnicodeString *
 compress_into_bytes_array(UnicodeString *string) {
-    int bytes_count = 0;
+    uint32_t bytes_count = 0;
 
-    unsigned char *compressed_string = calloc(string->len * 4, sizeof(unsigned char));
+    uint8_t *compressed_string = calloc(string->len * 4, sizeof(uint8_t));
     if (compressed_string == NULL) {
         exit(3);
     }
@@ -98,22 +98,22 @@ compress_into_bytes_array(UnicodeString *string) {
 }
 
 UnicodeChar
-read_unicode_char_with_offset(const char *pStr, const int offset) {
-    const char *pStr_shifted = pStr + offset;
+read_unicode_char_with_offset(const uint8_t *pStr, const uint32_t offset) {
+    const uint8_t *pStr_shifted = pStr + offset;
     return read_unicode_char(pStr_shifted);
 }
 
 UnicodeChar
-read_unicode_char_with_offset_safe(const char *pStr, const int offset) {
-    const char *pStr_shifted = pStr + offset;
+read_unicode_char_with_offset_safe(const uint8_t *pStr, const uint32_t offset) {
+    const uint8_t *pStr_shifted = pStr + offset;
     while (!get_octets_num(pStr_shifted)) {
         pStr_shifted++;
     }
     return read_unicode_char(pStr_shifted);
 }
 
-char
-get_octets_num(const char *chr) {
+uint8_t
+get_octets_num(const uint8_t *chr) {
     if (!((*chr & ONE_OCTET_MASK) ^ ONE_OCTET)) {
         return 1;
     }
@@ -144,19 +144,19 @@ print_unicode_char(const UnicodeChar uchar) {
     }
 }
 
-int
+uint32_t
 unicode_significant_bytes(const UnicodeChar *uchar) {
     return uchar->size;
 }
 
-int
+uint32_t
 unicode_ord(const UnicodeChar uchar) {
     size_t ord = 0;
-    int oct_0;
-    int oct_1;
-    int oct_2;
-    int oct_3;
-    const int sign_bytes = unicode_significant_bytes(&uchar);
+    uint8_t oct_0;
+    uint8_t oct_1;
+    uint8_t oct_2;
+    uint8_t oct_3;
+    const uint32_t sign_bytes = unicode_significant_bytes(&uchar);
 
     if (!sign_bytes) {
         return 0;
@@ -188,14 +188,14 @@ unicode_ord(const UnicodeChar uchar) {
             break;
     }
 
-    return (int) ord;
+    return (uint32_t) ord;
 }
 
 UnicodeChar
-unicode_chr(int char_ord) {
+unicode_chr(uint32_t char_ord) {
     UnicodeChar uchr = {0};
 
-    if (char_ord >= 0 && char_ord <= MAX_UNICODE_CHAR[0]) {
+    if (char_ord > 0 && char_ord <= MAX_UNICODE_CHAR[0]) {
         uchr.octet[0] = char_ord;
         uchr.size = 1;
     } else if (char_ord > MAX_UNICODE_CHAR[0] && char_ord < MAX_UNICODE_CHAR[1]) {
@@ -218,14 +218,14 @@ unicode_chr(int char_ord) {
     return uchr;
 }
 
-int
-get_next_octet(int *ord, const int shift) {
-    const int next_octet = *ord - (*ord >> shift << shift);
+uint32_t
+get_next_octet(uint32_t *ord, const uint32_t shift) {
+    const uint32_t next_octet = *ord - (*ord >> shift << shift);
     *ord = *ord >> shift;
     return next_octet;
 }
 
-int
-get_octet_value(const int octet_raw, const int shift) {
-    return octet_raw - (((octet_raw) >> shift) << shift);
+uint32_t
+get_octet_value(const uint32_t octet_raw, const uint32_t shift) {
+    return octet_raw - (octet_raw >> shift << shift);
 }

@@ -13,10 +13,11 @@
  * Empty (not-used) octets have null-terminating nul value '\0', so real size of Unicode character is always 4 bytes
  * in RAM memory, but it can be compressed while wring to disk / network by stripping these chars
  */
-#pragma pack(push, 1)
+#pragma pack(push)
+#pragma pack(1)
 typedef struct UnicodeChar_s {
-    unsigned char octet[4];
-    char size;
+    uint8_t octet[4];
+    uint8_t size;
 } UnicodeChar;
 
 /**
@@ -28,7 +29,7 @@ typedef struct UnicodeString_s {
 } UnicodeString;
 
 typedef struct CompressedUnicodeString_s {
-    unsigned char *data;
+    uint8_t *data;
     size_t len;
 } CompressedUnicodeString;
 
@@ -40,7 +41,7 @@ extern "C" {
 
 /**
  * Reads one Unicode character from pStr. Does not move pointer forward on read. To read next char you should
- * call `read_unicode_char_with_offset(char *pStr, int offset)`. Offset can be obtained from calling
+ * call `read_unicode_char_with_offset(char *pStr, uint32_t offset)`. Offset can be obtained from calling
  * `unicode_significant_bytes(UnicodeChar uchar)` with before-extracted UnicodeChar.
  *
  * @param pStr char array pointer to read Unicode character from
@@ -48,7 +49,7 @@ extern "C" {
  * @return: UnicodeChar
  */
 UnicodeChar
-read_unicode_char(const char *pStr);
+read_unicode_char(const uint8_t *pStr);
 
 /**
  * Reads one Unicode character from pStr into pUstr. Faster analog on read_unicode_char because result is not copied
@@ -57,12 +58,12 @@ read_unicode_char(const char *pStr);
  * @param pUstr pointer to UnicodeChar array pointer to read value
  */
 void
-read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr);
+read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr);
 
 /**
  * Tried to read a Unicode character from pStr starting at offset position. It is not guaranteed that such Unicode
  * char exists and can be read, in that case null-terminator returned.
- * To read Unicode character safely use `read_unicode_char_with_offset_safe(char *pStr, int offset)`
+ * To read Unicode character safely use `read_unicode_char_with_offset_safe(char *pStr, uint32_t offset)`
  *
  * @param pStr char array pointer to read Unicode character from
  * @param offset offset to read Unicode character from
@@ -70,7 +71,7 @@ read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr);
  * @return UnicodeChar
  */
 UnicodeChar
-read_unicode_char_with_offset(const char *pStr, int offset);
+read_unicode_char_with_offset(const uint8_t *pStr, uint32_t offset);
 
 /**
  * Safe version of read_unicode_char_with_offset - it moves pointer copy until get valid Unicode start byte and
@@ -82,7 +83,7 @@ read_unicode_char_with_offset(const char *pStr, int offset);
  * @return UnicodeChar
  */
 UnicodeChar
-read_unicode_char_with_offset_safe(const char *pStr, int offset);
+read_unicode_char_with_offset_safe(const uint8_t *pStr, uint32_t offset);
 
 /**
  * Main function to read `char *` string into array of UnicodeChar. It reads input pStr in given pUstr. If invalid
@@ -105,7 +106,7 @@ read_unicode_char_with_offset_safe(const char *pStr, int offset);
  */
 // TODO: edit null-terminator replacing with byte representation replace
 void
-read_into_unicode_array(const char *pStr, UnicodeChar **pUstr);
+read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr);
 
 /**
  * Main function to read `char *` string into UnicodeString struct. It reads input pStr in given pUstr. If invalid
@@ -114,7 +115,6 @@ read_into_unicode_array(const char *pStr, UnicodeChar **pUstr);
  *
  *
  * @param pStr char array pointer to read Unicode sequence from
- * @param pUstr ptr to UnicodeChar array pointer to read Unicode sequence into
  *
  * @example
  * char *mix = "Привет, 😀ອັກສອນລາວ World";
@@ -129,10 +129,10 @@ read_into_unicode_array(const char *pStr, UnicodeChar **pUstr);
  * you don't need that string anymore (see example)
  */
 UnicodeString *
-read_into_unicode_string(const char *pStr);
+read_into_unicode_string(const uint8_t *pStr);
 
 /**
- * Read UnicodeString into array of `unsigned char`s. Resulting array is filled with only significant bytes of
+ * Read UnicodeString into array of `uint8_t`s. Resulting array is filled with only significant bytes of
  * UnicodeString and null-terminated
  * @param string
  * @return
@@ -146,8 +146,8 @@ compress_into_bytes_array(UnicodeString *string);
  *
  * @param chr char to calculate encoding octets at
  */
-char
-get_octets_num(const char *chr);
+uint8_t
+get_octets_num(const uint8_t *chr);
 
 /**
  * Prints out UnicodeChar sequence
@@ -170,7 +170,7 @@ print_unicode_char(UnicodeChar uchar);
  * @param uchar UnicodeChar to get significant octets from
  * @return number of significant (non zero-terminating) bytes (octets) in UnicodeChar
  */
-int
+uint32_t
 unicode_significant_bytes(const UnicodeChar *uchar);
 
 /**
@@ -179,8 +179,8 @@ unicode_significant_bytes(const UnicodeChar *uchar);
  * @param shift bitwise shift
  * @return bit-shifted octet value without octet defining bits
  */
-int
-get_octet_value(int octet_raw, int shift);
+uint32_t
+get_octet_value(uint32_t octet_raw, uint32_t shift);
 
 /**
  * Read octet value right-to-left, giving you right-most octet value without octet header
@@ -189,15 +189,15 @@ get_octet_value(int octet_raw, int shift);
  * @param shift - number of bits to shift
  * @return
  */
-int
-get_next_octet(int *ord, int shift);
+uint32_t
+get_next_octet(uint32_t *ord, uint32_t shift);
 
 /**
  * Returns ordinal position in UTF-8 encoding of uchar
  * @param uchar UnicodeChar to get ordinal of
  * @return ordinal of UnicodeChar in UTF-8 encoding
  */
-int
+uint32_t
 unicode_ord(UnicodeChar uchar);
 
 /**
@@ -206,7 +206,7 @@ unicode_ord(UnicodeChar uchar);
  * @return UnicodeChar from given ordinal
  */
 UnicodeChar
-unicode_chr(int char_ord);
+unicode_chr(uint32_t char_ord);
 
 #ifdef __cplusplus
 }
