@@ -70,7 +70,7 @@ read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr);
  * @return UnicodeChar
  */
 UnicodeChar
-read_unicode_char_with_offset(char *pStr, int offset);
+read_unicode_char_with_offset(const char *pStr, int offset);
 
 /**
  * Safe version of read_unicode_char_with_offset - it moves pointer copy until get valid Unicode start byte and
@@ -82,12 +82,12 @@ read_unicode_char_with_offset(char *pStr, int offset);
  * @return UnicodeChar
  */
 UnicodeChar
-read_unicode_char_with_offset_safe(char *pStr, int offset);
+read_unicode_char_with_offset_safe(const char *pStr, int offset);
 
 /**
  * Main function to read `char *` string into array of UnicodeChar. It reads input pStr in given pUstr. If invalid
  * Unicode byte met it will be replaced with null-terminator, so be careful with it (known bug, will be fixed)
- * Resulting string has length of unicode chars + 1 - last is null-terminating octet
+ * Resulting string has length of Unicode chars + 1 - last is null-terminating octet
  *
  *
  * @param pStr char array pointer to read Unicode sequence from
@@ -110,7 +110,7 @@ read_into_unicode_array(const char *pStr, UnicodeChar **pUstr);
 /**
  * Main function to read `char *` string into UnicodeString struct. It reads input pStr in given pUstr. If invalid
  * Unicode byte met it will be replaced with null-terminator, so be careful with it (known bug, will be fixed)
- * Resulting string has length of unicode chars + 1 - last is null-terminating octet
+ * Resulting string has length of Unicode chars + 1 - last is null-terminating octet
  *
  *
  * @param pStr char array pointer to read Unicode sequence from
@@ -154,7 +154,7 @@ get_octets_num(const char *chr);
  * @param pUstr UnicodeChar sequence to print
  */
 void
-print_unicode_string(UnicodeChar *pUstr);
+print_unicode_string(const UnicodeChar *pUstr);
 
 /**
  * Prints single UnicodeChar

@@ -10,7 +10,7 @@
 
 UnicodeChar
 read_unicode_char(const char *pStr) {
-    char octets = get_octets_num(pStr);
+    const char octets = get_octets_num(pStr);
     UnicodeChar uchar = {{0, 0, 0, 0}, octets};
 
     for (size_t i = 0; i < octets; i++) {
@@ -22,13 +22,13 @@ read_unicode_char(const char *pStr) {
 
 void
 read_unicode_char_fast(const char *pStr, UnicodeChar **pUstr) {
-    char octets = get_octets_num(pStr);
+    const char octets = get_octets_num(pStr);
     (*pUstr)->size = octets;
     if (!octets) {
-//        we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
+        //        we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
         (*pUstr)->size = 4;
-        *(*pUstr)->octet = 92;          // '\'
-        *((*pUstr)->octet + 1) = 120;   // 'x'
+        *(*pUstr)->octet = 92; // '\'
+        *((*pUstr)->octet + 1) = 120; // 'x'
         *((*pUstr)->octet + 2) = HEXES[(15 - (~(*pStr) >> 4)) % 16];
         *((*pUstr)->octet + 3) = HEXES[-((~(*pStr & 15)) + 1) % 16];
         return;
@@ -43,23 +43,23 @@ read_into_unicode_array(const char *pStr, UnicodeChar **pUstr) {
     *pUstr = (UnicodeChar *) calloc((strlen(pStr) + 1), uc_size_t);
     UnicodeChar *pInit = *pUstr;
 
-    while ((*pStr) != '\0') {
+    while (*pStr != '\0') {
         read_unicode_char_fast(pStr, pUstr);
         pStr += (*pUstr)->size;
-        ++(*pUstr);
+        ++*pUstr;
     }
 
-    (*(*pUstr)) = (UnicodeChar) {0};
+    (*(*pUstr)) = (UnicodeChar){0};
     *pUstr = pInit;
 }
 
 UnicodeString *
 read_into_unicode_string(const char *pStr) {
-    UnicodeString *str = (UnicodeString *) calloc(1, sizeof(struct UnicodeString_s));
+    UnicodeString *str = calloc(1, sizeof(struct UnicodeString_s));
     str->len = 1;
     read_into_unicode_array(pStr, &str->data);
-    while ((*(str->data)++).size != 0) str->len++;
-    *&str->data -= str->len;
+    while (str->data++->size != 0) str->len++;
+    str->data -= str->len;
     return str;
 }
 
@@ -72,7 +72,7 @@ compress_into_bytes_array(UnicodeString *string) {
         exit(3);
     }
 
-    while ((*string->data).size != 0) {
+    while (string->data->size != 0) {
         memcpy(compressed_string + bytes_count, string->data->octet, string->data->size);
         bytes_count += string->data->size;
         string->data++;
@@ -98,14 +98,14 @@ compress_into_bytes_array(UnicodeString *string) {
 }
 
 UnicodeChar
-read_unicode_char_with_offset(char *pStr, int offset) {
-    char *pStr_shifted = pStr + offset;
+read_unicode_char_with_offset(const char *pStr, const int offset) {
+    const char *pStr_shifted = pStr + offset;
     return read_unicode_char(pStr_shifted);
 }
 
 UnicodeChar
-read_unicode_char_with_offset_safe(char *pStr, int offset) {
-    char *pStr_shifted = pStr + offset;
+read_unicode_char_with_offset_safe(const char *pStr, const int offset) {
+    const char *pStr_shifted = pStr + offset;
     while (!get_octets_num(pStr_shifted)) {
         pStr_shifted++;
     }
@@ -113,30 +113,32 @@ read_unicode_char_with_offset_safe(char *pStr, int offset) {
 }
 
 char
-get_octets_num(const char *c) {
-    if (!((*c & ONE_OCTET_MASK) ^ ONE_OCTET)) {
+get_octets_num(const char *chr) {
+    if (!((*chr & ONE_OCTET_MASK) ^ ONE_OCTET)) {
         return 1;
-    } else if (!((*c & TWO_OCTET_MASK) ^ TWO_OCTET)) {
-        return 2;
-    } else if (!((*c & THREE_OCTET_MASK) ^ THREE_OCTET)) {
-        return 3;
-    } else if (!((*c & FOUR_OCTET_MASK) ^ FOUR_OCTET)) {
-        return 4;
-    } else {
-        return 0;
     }
+    if (!((*chr & TWO_OCTET_MASK) ^ TWO_OCTET)) {
+        return 2;
+    }
+    if (!((*chr & THREE_OCTET_MASK) ^ THREE_OCTET)) {
+        return 3;
+    }
+    if (!((*chr & FOUR_OCTET_MASK) ^ FOUR_OCTET)) {
+        return 4;
+    }
+    return 0;
 }
 
 void
-print_unicode_string(UnicodeChar *pUstr) {
-    while ((*pUstr).size != 0) {
+print_unicode_string(const UnicodeChar *pUstr) {
+    while (pUstr->size != 0) {
         print_unicode_char(*pUstr);
         ++pUstr;
     }
 }
 
 void
-print_unicode_char(UnicodeChar uchar) {
+print_unicode_char(const UnicodeChar uchar) {
     for (size_t i = 0; i < uchar.size; i++) {
         putchar(uchar.octet[i]);
     }
@@ -148,13 +150,13 @@ unicode_significant_bytes(const UnicodeChar *uchar) {
 }
 
 int
-unicode_ord(UnicodeChar uchar) {
+unicode_ord(const UnicodeChar uchar) {
     size_t ord = 0;
     int oct_0;
     int oct_1;
     int oct_2;
     int oct_3;
-    int sign_bytes = unicode_significant_bytes(&uchar);
+    const int sign_bytes = unicode_significant_bytes(&uchar);
 
     if (!sign_bytes) {
         return 0;
@@ -167,7 +169,7 @@ unicode_ord(UnicodeChar uchar) {
         case 2:
             oct_0 = get_octet_value(uchar.octet[0], 5);
             oct_1 = get_octet_value(uchar.octet[1], 7);
-            ord = ((oct_0 << 6) + oct_1);
+            ord = (oct_0 << 6) + oct_1;
             break;
         case 3:
             oct_0 = get_octet_value(uchar.octet[0], 4);
@@ -196,18 +198,15 @@ unicode_chr(int char_ord) {
     if (char_ord >= 0 && char_ord <= MAX_UNICODE_CHAR[0]) {
         uchr.octet[0] = char_ord;
         uchr.size = 1;
-
     } else if (char_ord > MAX_UNICODE_CHAR[0] && char_ord < MAX_UNICODE_CHAR[1]) {
         uchr.octet[1] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[0] = START_TWO_OCTET + char_ord;
         uchr.size = 2;
-
     } else if (char_ord > MAX_UNICODE_CHAR[1] && char_ord < MAX_UNICODE_CHAR[2]) {
         uchr.octet[2] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[1] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[0] = START_THREE_OCTET + char_ord;
         uchr.size = 3;
-
     } else if (char_ord > MAX_UNICODE_CHAR[2] && char_ord < MAX_UNICODE_CHAR[3]) {
         uchr.octet[3] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
         uchr.octet[2] = CONTINUE_OCTET + get_next_octet(&char_ord, 6);
@@ -220,13 +219,13 @@ unicode_chr(int char_ord) {
 }
 
 int
-get_next_octet(int *ord, int shift) {
-    int ret_val = *ord - (((*ord) >> shift) << shift);
+get_next_octet(int *ord, const int shift) {
+    const int next_octet = *ord - (*ord >> shift << shift);
     *ord = *ord >> shift;
-    return ret_val;
+    return next_octet;
 }
 
 int
-get_octet_value(int octet_raw, int shift) {
+get_octet_value(const int octet_raw, const int shift) {
     return octet_raw - (((octet_raw) >> shift) << shift);
 }
