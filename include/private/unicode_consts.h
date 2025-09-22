@@ -42,7 +42,7 @@ const uint8_t THREE_OCTET = 0b11100000;
 const uint8_t FOUR_OCTET_MASK = 0b11111000;
 const uint8_t FOUR_OCTET = 0b11110000;
 
-uint8_t HEXES[16] = {
+const uint8_t HEXES[16] = {
     '0',
     '1',
     '2',
