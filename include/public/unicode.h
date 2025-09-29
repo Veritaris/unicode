@@ -37,6 +37,9 @@ typedef struct CompressedUnicodeString_s {
 
 #ifdef __cplusplus
 extern "C" {
+
+
+
 #endif
 
 /**
@@ -134,6 +137,54 @@ UnicodeString *
 read_into_unicode_string(const uint8_t *pStr);
 
 /**
+ * Creates a new UnicodeString instance with the specified size. If size params is NULL, then the default size is 16
+ *
+ * @param size Pointer to a size_t value specifying the size of the UnicodeString to be created.
+ * @return A pointer to the newly allocated UnicodeString, or nullptr if allocation fails.
+ */
+UnicodeString *
+new_ustr(const size_t *size);
+
+/**
+ * Concatenates two UnicodeString objects and returns a new UnicodeString containing the result.
+ *
+ * @param self The first UnicodeString object.
+ * @param other The second UnicodeString object to append to the first.
+ * @return A new UnicodeString containing the concatenated result of the two input strings.
+ */
+UnicodeString *
+concat_ustr(const UnicodeString *self, const UnicodeString *other);
+
+/**
+ * Appends a single character to the given UnicodeString.
+ * The character is converted to a UnicodeChar and added to the end of the string.
+ *
+ * @param self A pointer to the UnicodeString to which the character will be added.
+ * @param chr The character to be appended to the UnicodeString.
+ * @return A pointer to the updated UnicodeString containing the appended character.
+ */
+UnicodeString *
+push_char(UnicodeString *self, char chr);
+
+/**
+ * Appends a UnicodeChar to the end of a UnicodeString.
+ *
+ * @param self A pointer to the UnicodeString to which the character will be appended.
+ * @param chr The UnicodeChar to append to the UnicodeString.
+ * @return A pointer to a new UnicodeString containing the appended character, or NULL if the operation fails.
+ */
+UnicodeString *
+push_uchar(UnicodeString *self, UnicodeChar chr);
+
+/**
+ * Frees the memory allocated for a UnicodeString object, including its internal array of UnicodeChar elements.
+ *
+ * @param self A pointer to the UnicodeString object to be deallocated.
+ */
+void
+free_ustr(UnicodeString *self);
+
+/**
  * Read UnicodeString into an array of `uint8_t`s. The resulting array is filled with only significant bytes of
  * UnicodeString and null-terminated
  * @param string
@@ -143,7 +194,7 @@ CompressedUnicodeString *
 compress_into_bytes_array(UnicodeString *string);
 
 /**
- * Return octets that a given ` chr ` is encoded with. If `chr` is not valid, Unicode start byte 0 is returned that will
+ * Return octets that a given `chr` is encoded with. If `chr` is not valid, Unicode start byte 0 is returned that will
  * lead to empty UnicodeChar, e.g., null-terminator
  *
  * @param chr char to calculate encoding octets at
@@ -153,10 +204,19 @@ get_octets_num(const uint8_t *chr);
 
 /**
  * Prints out UnicodeChar sequence
- * @param pUstr UnicodeChar sequence to print
+ * @param uCharArray UnicodeChar sequence to print
  */
 void
-print_unicode_string(const UnicodeChar *pUstr);
+print_unicode_char_array(const UnicodeChar *uCharArray);
+
+/**
+ * Prints the characters in a UnicodeString to the output.
+ *
+ * @param pUstr A pointer to the UnicodeString to be printed. The UnicodeString
+ *              contains an array of UnicodeChar structs and its length.
+ */
+void
+print_unicode_string(const UnicodeString *pUstr);
 
 /**
  * Prints a single UnicodeChar

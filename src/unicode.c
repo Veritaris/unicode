@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "unicode_consts.h"
+#include "../../dsa/include/public/mallocs.h"
 
 UnicodeChar
 read_unicode_char(const uint8_t *pStr) {
@@ -14,7 +15,7 @@ read_unicode_char(const uint8_t *pStr) {
     UnicodeChar uchar = {{0, 0, 0, 0}, octets};
 
     for (size_t i = 0; i < octets; i++) {
-        uchar.octet[i] = *(pStr++);
+        uchar.octet[i] = *pStr++;
     }
 
     return uchar;
@@ -25,7 +26,7 @@ read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
     const uint8_t octets = get_octets_num(pStr);
     (*pUstr)->size = octets;
     if (!octets) {
-        //        we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
+        // we assume that we have 4 bytes because we want to print all 4 symbols of hex-representation
         (*pUstr)->size = 4;
         *(*pUstr)->octet = 92; // '\'
         *((*pUstr)->octet + 1) = 120; // 'x'
@@ -40,7 +41,7 @@ read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
 
 void
 read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
-    *pUstr = (UnicodeChar *) calloc(strlen((char *) pStr) + 1, uc_size_t);
+    *pUstr = (UnicodeChar *) calloc(strlen((char *) pStr) + 1, uchar_size_t);
     UnicodeChar *pInit = *pUstr;
 
     while (*pStr != '\0') {
@@ -55,7 +56,7 @@ read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
 
 UnicodeString *
 read_into_unicode_string(const uint8_t *pStr) {
-    UnicodeString *str = calloc(1, sizeof(struct UnicodeString_s));
+    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
     str->len = 1;
     read_into_unicode_array(pStr, &str->data);
     while (str->data++->size != 0) str->len++;
@@ -63,14 +64,63 @@ read_into_unicode_string(const uint8_t *pStr) {
     return str;
 }
 
+UnicodeString *
+new_ustr(const size_t *size) {
+    size_t string_len = 16;
+    if (size != NULL) {
+        string_len = (size_t) *size;
+    }
+
+    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
+    ccalloc_safe(str->data, string_len, uchar_size_t);
+
+    return str;
+}
+
+UnicodeString *
+concat_ustr(const UnicodeString *self, const UnicodeString *other) {
+    const size_t string_len = self->len + other->len;
+    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
+    ccalloc_safe(str->data, string_len, uchar_size_t);
+    memcpy(str->data, self->data, self->len * uchar_size_t);
+    memcpy(str->data + self->len * uchar_size_t, other->data, other->len * uchar_size_t);
+    return str;
+}
+
+UnicodeString *
+push_char(UnicodeString *self, const char chr) {
+    const UnicodeChar uchar = unicode_chr(chr);
+    return push_uchar(self, uchar);
+}
+
+UnicodeString *
+push_uchar(UnicodeString *self, const UnicodeChar chr) {
+    const size_t string_len = self->len + 1;
+
+    UnicodeString *ccalloc_safe(tmp_str, 1, ustr_size_t);
+    ccalloc_safe(tmp_str->data, string_len, ustr_size_t);
+    memcpy(tmp_str->data, self->data, self->len * uchar_size_t);
+
+    ccalloc_safe(self->data, string_len, uchar_size_t);
+    memcpy(self->data, tmp_str->data, self->len * uchar_size_t);
+    self->data[self->len] = chr;
+
+    free_ustr(tmp_str);
+
+    return self;
+}
+
+void
+free_ustr(UnicodeString *self) {
+    free(self->data);
+    free(self);
+}
+
 CompressedUnicodeString *
 compress_into_bytes_array(UnicodeString *string) {
     uint32_t bytes_count = 0;
 
-    uint8_t *compressed_string = calloc(string->len * 4, sizeof(uint8_t));
-    if (compressed_string == NULL) {
-        exit(3);
-    }
+    uint8_t * ccalloc_safe(compressed_string, string->len * 4, sizeof(uint8_t));
 
     while (string->data->size != 0) {
         memcpy(compressed_string + bytes_count, string->data->octet, string->data->size);
@@ -130,10 +180,17 @@ get_octets_num(const uint8_t *chr) {
 }
 
 void
-print_unicode_string(const UnicodeChar *pUstr) {
-    while (pUstr->size != 0) {
-        print_unicode_char(*pUstr);
-        ++pUstr;
+print_unicode_char_array(const UnicodeChar *uCharArray) {
+    while (uCharArray->size != 0) {
+        print_unicode_char(*uCharArray);
+        ++uCharArray;
+    }
+}
+
+void
+print_unicode_string(const UnicodeString *pUstr) {
+    for (int i = 0; i < pUstr->len; i++) {
+        print_unicode_char(pUstr->data[i]);
     }
 }
 
