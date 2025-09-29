@@ -7,6 +7,9 @@
 
 #include "unicode.h"
 
+#define NEW_USTR_DEFAULT_LEN 16
+#define NEW_USTR_NULL_VALUE -1
+
 // define max int code for (i+1) octet Unicode char representation
 const uint32_t MAX_UNICODE_CHAR[4] = {
     0x7F,

@@ -65,11 +65,8 @@ read_into_unicode_string(const uint8_t *pStr) {
 }
 
 UnicodeString *
-new_ustr(const size_t *size) {
-    size_t string_len = 16;
-    if (size != NULL) {
-        string_len = (size_t) *size;
-    }
+new_ustr(const ssize_t size) {
+    const size_t string_len = size > NEW_USTR_NULL_VALUE ? size : NEW_USTR_DEFAULT_LEN;
 
     UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
     ccalloc_safe(str->data, string_len, uchar_size_t);

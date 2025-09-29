@@ -143,7 +143,7 @@ read_into_unicode_string(const uint8_t *pStr);
  * @return A pointer to the newly allocated UnicodeString, or nullptr if allocation fails.
  */
 UnicodeString *
-new_ustr(const size_t *size);
+new_ustr(ssize_t size);
 
 /**
  * Concatenates two UnicodeString objects and returns a new UnicodeString containing the result.
