@@ -2,8 +2,8 @@
 // Created by Георгий Имешкенов on 22.04.2024.
 //
 
-#ifndef GENGINE_UNICODE_CONSTS_H
-#define GENGINE_UNICODE_CONSTS_H
+#ifndef UNICODE_CONSTS_H
+#define UNICODE_CONSTS_H
 
 #include "unicode.h"
 
@@ -74,4 +74,4 @@ const size_t uchar_size_t = sizeof(UnicodeChar);
 */
 const size_t ustr_size_t = sizeof(UnicodeString);
 
-#endif //GENGINE_UNICODE_CONSTS_H
+#endif //UNICODE_CONSTS_H

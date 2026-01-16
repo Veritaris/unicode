@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#ifndef FILTERPARSER_UNICODE_H
-#define FILTERPARSER_UNICODE_H
+#ifndef UNICODE_H
+#define UNICODE_H
 
 /**
  * Unicode char consist of max 4 octets, 1 byte each.
@@ -274,4 +274,4 @@ unicode_chr(uint32_t char_ord);
 }
 #endif
 
-#endif //FILTERPARSER_UNICODE_H
+#endif //UNICODE_H

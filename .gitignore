@@ -6,7 +6,9 @@ unicode_benchmark
 cmake-build-debug
 .idea
 cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
 *.a
 Makefile
 build
-CMakeFiles
+*-test
