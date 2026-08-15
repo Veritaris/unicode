@@ -100,11 +100,11 @@ push_uchar(UnicodeString *self, const UnicodeChar chr) {
     ccalloc_safe(tmp_str->data, string_len, UCHAR_SIZE);
     memcpy(tmp_str->data, self->data, self->len * UCHAR_SIZE);
 
-    ccalloc_safe(self->data, string_len, uchar_size_t);
-    memcpy(self->data, tmp_str->data, self->len * uchar_size_t);
+    free(self->data);
     ccalloc_safe(self->data, string_len, UCHAR_SIZE);
     memcpy(self->data, tmp_str->data, self->len * UCHAR_SIZE);
     self->data[self->len] = chr;
+    self->len = string_len;
 
     free_ustr(tmp_str);
 
