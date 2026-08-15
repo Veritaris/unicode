@@ -139,7 +139,7 @@ compress_into_bytes_array(UnicodeString *string) {
     compressed->len = bytes_count + 1;
     memmove(compressed->data, compressed_string, bytes_count);
     free(compressed_string);
-    *(compressed->data + bytes_count + 1) = '\0';
+    *(compressed->data + bytes_count) = '\0';
 
     return compressed;
 }
