@@ -67,11 +67,11 @@ const uint8_t HEXES[16] = {
 /**
  * Size of UnicodeChar struct in bytes
  */
-const size_t uchar_size_t = sizeof(UnicodeChar);
+const size_t UCHAR_SIZE = sizeof(UnicodeChar);
 
 /**
  * Size of UnicodeString struct in bytes
 */
-const size_t ustr_size_t = sizeof(UnicodeString);
+const size_t USTR_SIZE = sizeof(UnicodeString);
 
 #endif //UNICODE_CONSTS_H

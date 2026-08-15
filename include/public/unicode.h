@@ -171,7 +171,8 @@ push_char(UnicodeString *self, char chr);
  *
  * @param self A pointer to the UnicodeString to which the character will be appended.
  * @param chr The UnicodeChar to append to the UnicodeString.
- * @return A pointer to a new UnicodeString containing the appended character, or NULL if the operation fails.
+ * @return A pointer to a the same UnicodeString containing the appended character with a new inner data pointer,
+ * or NULL if the operation fails.
  */
 UnicodeString *
 push_uchar(UnicodeString *self, UnicodeChar chr);

@@ -44,7 +44,7 @@ read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
 
 void
 read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
-    *pUstr = (UnicodeChar *) calloc(strlen((char *) pStr) + 1, uchar_size_t);
+    *pUstr = (UnicodeChar *) calloc(strlen((char *) pStr) + 1, UCHAR_SIZE);
     UnicodeChar *pInit = *pUstr;
 
     while (*pStr != '\0') {
@@ -58,7 +58,7 @@ read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
 
 UnicodeString *
 read_into_unicode_string(const uint8_t *pStr) {
-    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
+    UnicodeString *ccalloc_safe(str, 1, USTR_SIZE);
     str->len = 1;
     read_into_unicode_array(pStr, &str->data);
     while (str->data++->size != 0) str->len++;
@@ -70,8 +70,8 @@ UnicodeString *
 new_ustr(const ssize_t size) {
     const size_t string_len = size > NEW_USTR_NULL_VALUE ? size : NEW_USTR_DEFAULT_LEN;
 
-    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
-    ccalloc_safe(str->data, string_len, uchar_size_t);
+    UnicodeString *ccalloc_safe(str, 1, USTR_SIZE);
+    ccalloc_safe(str->data, string_len, UCHAR_SIZE);
 
     return str;
 }
@@ -79,10 +79,10 @@ new_ustr(const ssize_t size) {
 UnicodeString *
 concat_ustr(const UnicodeString *self, const UnicodeString *other) {
     const size_t string_len = self->len + other->len;
-    UnicodeString *ccalloc_safe(str, 1, ustr_size_t);
-    ccalloc_safe(str->data, string_len, uchar_size_t);
-    memcpy(str->data, self->data, self->len * uchar_size_t);
-    memcpy(str->data + self->len * uchar_size_t, other->data, other->len * uchar_size_t);
+    UnicodeString *ccalloc_safe(str, 1, USTR_SIZE);
+    ccalloc_safe(str->data, string_len, UCHAR_SIZE);
+    memcpy(str->data, self->data, self->len * UCHAR_SIZE);
+    memcpy(str->data + self->len * UCHAR_SIZE, other->data, other->len * UCHAR_SIZE);
     return str;
 }
 
@@ -96,12 +96,14 @@ UnicodeString *
 push_uchar(UnicodeString *self, const UnicodeChar chr) {
     const size_t string_len = self->len + 1;
 
-    UnicodeString *ccalloc_safe(tmp_str, 1, ustr_size_t);
-    ccalloc_safe(tmp_str->data, string_len, ustr_size_t);
-    memcpy(tmp_str->data, self->data, self->len * uchar_size_t);
+    UnicodeString *ccalloc_safe(tmp_str, 1, USTR_SIZE);
+    ccalloc_safe(tmp_str->data, string_len, UCHAR_SIZE);
+    memcpy(tmp_str->data, self->data, self->len * UCHAR_SIZE);
 
     ccalloc_safe(self->data, string_len, uchar_size_t);
     memcpy(self->data, tmp_str->data, self->len * uchar_size_t);
+    ccalloc_safe(self->data, string_len, UCHAR_SIZE);
+    memcpy(self->data, tmp_str->data, self->len * UCHAR_SIZE);
     self->data[self->len] = chr;
 
     free_ustr(tmp_str);
