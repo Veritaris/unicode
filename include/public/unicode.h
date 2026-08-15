@@ -19,6 +19,7 @@ typedef struct UnicodeChar_s {
     uint8_t octet[4];
     uint8_t size;
 } UnicodeChar;
+#pragma pack(pop)
 
 /**
  * UnicodeString represents a string that is formally an array of UnicodeChar structs
@@ -32,8 +33,6 @@ typedef struct CompressedUnicodeString_s {
     uint8_t *data;
     size_t len;
 } CompressedUnicodeString;
-
-#pragma pack(pop)
 
 #ifdef __cplusplus
 extern "C" {
