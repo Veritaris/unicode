@@ -30,9 +30,9 @@ read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
         (*pUstr)->size = 4;
         *(*pUstr)->octet = 92; // '\'
         *((*pUstr)->octet + 1) = 120; // 'x'
-        *((*pUstr)->octet + 2) = HEXES[(15 - (~*pStr >> 4)) % 16];
-        *((*pUstr)->octet + 3) = HEXES[-(~(*pStr & 15) + 1) % 16];
-        return;
+        *((*pUstr)->octet + 2) = HEXES[(*pStr >> 4) & 0xF];
+        *((*pUstr)->octet + 3) = HEXES[*pStr & 0xF];
+        return 1;
     }
     for (size_t i = 0; i < octets; i++) {
         *((*pUstr)->octet + i) = *pStr++;
