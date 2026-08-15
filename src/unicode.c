@@ -21,7 +21,7 @@ read_unicode_char(const uint8_t *pStr) {
     return uchar;
 }
 
-void
+uint8_t
 read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
     const uint8_t octets = get_octets_num(pStr);
     (*pUstr)->size = octets;
@@ -34,9 +34,12 @@ read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr) {
         *((*pUstr)->octet + 3) = HEXES[*pStr & 0xF];
         return 1;
     }
+
     for (size_t i = 0; i < octets; i++) {
         *((*pUstr)->octet + i) = *pStr++;
     }
+
+    return octets;
 }
 
 void
@@ -45,8 +48,7 @@ read_into_unicode_array(const uint8_t *pStr, UnicodeChar **pUstr) {
     UnicodeChar *pInit = *pUstr;
 
     while (*pStr != '\0') {
-        read_unicode_char_fast(pStr, pUstr);
-        pStr += (*pUstr)->size;
+        pStr += read_unicode_char_fast(pStr, pUstr);
         ++*pUstr;
     }
 

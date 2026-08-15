@@ -59,8 +59,9 @@ read_unicode_char(const uint8_t *pStr);
  * between invocation and assignment but writing directly to allocated memory
  * @param pStr char array pointer to read Unicode character from
  * @param pUstr pointer to UnicodeChar array pointer to read value
+ * @return number of source bytes consumed by this read (1 on invalid byte, else the octet count)
  */
-void
+uint8_t
 read_unicode_char_fast(const uint8_t *pStr, UnicodeChar **pUstr);
 
 /**
